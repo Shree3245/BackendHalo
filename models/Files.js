@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
-const SALT_WORK_FACTOR = 10;
 
-const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, index: { unique: true } },
-  password: { type: String, required: true },
-  email: { type: String, required: true },
+const FileSchema = new mongoose.Schema({
+  id: { type: String, required: true, index: { unique: true } },
+  username: { type: String, required: true },
+  data: { type: String, required: true },
+  filename: { type: String, required: true },
 });
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("Files", FileSchema);
 
 // Reference on user authentication with Mongoose
 // https://www.mongodb.com/blog/post/password-authentication-with-mongoose-part-1

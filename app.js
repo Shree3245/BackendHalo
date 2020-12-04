@@ -9,6 +9,7 @@ const debug = require("debug")("shree-express:server");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const filesRouter = require("./routes/files");
 
 const app = express();
 var ExpressPeerServer = require("peer").ExpressPeerServer;
@@ -42,7 +43,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-
+app.use("/files", filesRouter);
 var server = require("http").createServer(app);
 
 // peerjs is the path that the peerjs server will be connected to.
