@@ -55,15 +55,28 @@ router.post("/add", (req, res, next) => {
   });
 });
 
-router.get("/usersList", function (req, res) {
-  User.find({}, function (err, users) {
-    var userMap = {};
+router.post("/usersList", function (req, res) {
+  if (!req.body.username) {
+    res.status(401).json({ message: "No user to check for" });
+    next();
+  }
+  User.findOne({ username: req.body.username }, (err, doc) => {
+    console.log(req.body.username);
+    if (err) res.status(500).json({ message: err });
+    if (!doc) {
+      res.status(501).json({ message: "Not on my database" });
+    }
+    if (!err) {
+      File.find({ username: req.body.username }, function (err, users) {
+        var userMap = {};
 
-    users.forEach(function (user) {
-      userMap[user._id] = user;
-    });
+        users.forEach(function (user) {
+          userMap[user._id] = user;
+        });
 
-    res.send(userMap);
+        res.status(201).send(userMap);
+      });
+    }
   });
 });
 
