@@ -44,6 +44,27 @@ router.post("/add", (req, res, next) => {
     });
 });
 
+router.post("/fileDownload",function(req,res){
+  if (!req.body.username) {
+    res.status(401).json({ message: "No user to check for" });
+    next();
+  }
+  User.findOne({ username: req.body.username }, (err, doc) => {
+    console.log(req.body.username);
+    if (err) res.status(500).json({ message: err });
+    if (!doc) {
+      res.status(501).json({ message: "Not on my database" });
+    }
+    if (!err) {
+      File.findOne({ username: req.body.username,id:req.body.id }, function (err, doc) {
+        
+
+        res.status(201).send(doc.data);
+      });
+    }
+  });
+})
+
 router.post("/usersList", function (req, res) {
   if (!req.body.username) {
     res.status(401).json({ message: "No user to check for" });
@@ -56,10 +77,10 @@ router.post("/usersList", function (req, res) {
       res.status(501).json({ message: "Not on my database" });
     }
     if (!err) {
-      File.find({ username: req.body.username }, function (err, users) {
+      File.find({ username: req.body.username }, function (err, doc) {
         var userMap = {};
 
-        users.forEach(function (user) {
+        doc.forEach(function (user) {
           userMap[user._id] = user;
         });
 
