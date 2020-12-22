@@ -65,7 +65,7 @@ router.post("/fileDownload",function(req,res){
   });
 })
 
-router.post("/usersList", function (req, res) {
+router.post("/filesList", function (req, res) {
   if (!req.body.username) {
     res.status(401).json({ message: "No user to check for" });
     next();
@@ -81,7 +81,7 @@ router.post("/usersList", function (req, res) {
         var userMap = {};
 
         doc.forEach(function (user) {
-          userMap[user._id] = user;
+          userMap[user._id] = user.filename;
         });
 
         res.status(201).send(userMap);
