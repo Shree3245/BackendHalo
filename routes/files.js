@@ -49,14 +49,14 @@ router.post("/fileDownload",function(req,res){
     res.status(401).json({ message: "No user to check for" });
     next();
   }
-  User.findOne({ username: req.body.username }, (err, doc) => {
+  User.findOne({ username: req.body.username }, (err, user) => {
     console.log(req.body.username);
     if (err) res.status(500).json({ message: err });
-    if (!doc) {
+    if (!user) {
       res.status(501).json({ message: "Not on my database" });
     }
     if (!err) {
-      File.findOne({ username: req.body.username,id:req.body.id }, function (err, doc) {
+      File.findOne({ username: req.body.username,_id:req.body.id }, function (err, doc) {
         
 
         res.status(201).send(doc.data);
