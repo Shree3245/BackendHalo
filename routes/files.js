@@ -58,8 +58,8 @@ router.post("/fileDownload",function(req,res){
     if (!err) {
       File.findOne({ username: req.body.username,_id:req.body.id }, function (err, doc) {
         
-
-        res.status(201).send(doc.data);
+        console.log(doc.data)
+        res.status(201).json({data: doc.data})
       });
     }
   });
