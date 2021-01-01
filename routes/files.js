@@ -59,7 +59,7 @@ router.post("/fileDownload",function(req,res){
       File.findOne({ username: req.body.username,_id:req.body.id }, function (err, doc) {
         
         console.log(doc.data)
-        res.status(201).json({data: doc.data})
+        res.status(201).json({data: doc.data,filename:doc.filename})
       });
     }
   });
