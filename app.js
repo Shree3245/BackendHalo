@@ -6,10 +6,15 @@ var server = app.listen(3000, () =>
   console.log("server running on port:" + 3000)
 );
 var io = require("socket.io")(server);
-
+var logger = require("morgan");
+var methodOverride = require("method-override");
+var session = require("express-session");
+var bodyParser = require("body-parser");
+var multer = require("multer");
+var errorHandler = require("errorhandler");
 const path = require("path");
 const cookieParser = require("cookie-parser");
-const logger = require("morgan");
+
 const mongoose = require("mongoose");
 const debug = require("debug")("shree-express:server");
 
@@ -32,7 +37,7 @@ mongoose
   });
 
 //Create a file limit size
-app.use(express.bodyParser({ limit: "50mb" }));
+app.use(bodyParser({ limit: "50mb" }));
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
