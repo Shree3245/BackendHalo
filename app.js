@@ -37,7 +37,7 @@ mongoose
   });
 
 //Create a file limit size
-app.use(bodyParser({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb" }));
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
