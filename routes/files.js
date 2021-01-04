@@ -7,7 +7,6 @@ const uuid = require("uuid");
 const router = express.Router();
 
 router.post("/add", (req, res, next) => {
-  console.log(req.body);
   if (!req.body.username || !req.body.data || !req.body.filename) {
     res.status(401).json({ message: "No data passed" });
     next();
@@ -44,26 +43,26 @@ router.post("/add", (req, res, next) => {
     });
 });
 
-router.post("/fileDownload",function(req,res){
+router.post("/fileDownload", function (req, res) {
   if (!req.body.username) {
     res.status(401).json({ message: "No user to check for" });
     next();
   }
   User.findOne({ username: req.body.username }, (err, user) => {
-    console.log(req.body.username);
     if (err) res.status(500).json({ message: err });
     if (!user) {
       res.status(501).json({ message: "Not on my database" });
     }
     if (!err) {
-      File.findOne({ username: req.body.username,_id:req.body.id }, function (err, doc) {
-        
-        console.log(doc.data)
-        res.status(201).json({data: doc.data,filename:doc.filename})
-      });
+      File.findOne(
+        { username: req.body.username, _id: req.body.id },
+        function (err, doc) {
+          res.status(201).json({ data: doc.data, filename: doc.filename });
+        }
+      );
     }
   });
-})
+});
 
 router.post("/filesList", function (req, res) {
   if (!req.body.username) {
@@ -71,7 +70,6 @@ router.post("/filesList", function (req, res) {
     next();
   }
   User.findOne({ username: req.body.username }, (err, doc) => {
-    console.log(req.body.username);
     if (err) res.status(500).json({ message: err });
     if (!doc) {
       res.status(501).json({ message: "Not on my database" });
