@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "DEBUG=shree-express:* nodemon ./bin/www"
+    "start": "node app",
+    "dev": "nodemon app"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -20,6 +20,7 @@
     "peer": "^0.5.3",
     "peerjs-nodejs": "^1.1.3",
     "react-native-peerjs": "^1.0.4",
+    "socket.io": "^3.0.4",
     "uuid": "^8.3.0"
   },
   "devDependencies": {
