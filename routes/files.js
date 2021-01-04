@@ -35,7 +35,7 @@ router.post("/add", (req, res, next) => {
     .save()
     .then((doc) => {
       debug(`Created a new file ${JSON.stringify(doc, null, 2)}`);
-      res.status(201).json({ message: "File added succesfully" });
+      res.status(201).json({ message: "File added succesfully", id: doc._id });
     })
     .catch((err) => {
       debug(`Failed to create a new user: ${err}`);
