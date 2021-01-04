@@ -1,26 +1,18 @@
 require("dotenv").config();
 const createError = require("http-errors");
 const express = require("express");
-const app = express();
-var server = app.listen(3000, () =>
-  console.log("server running on port:" + 3000)
-);
-var io = require("socket.io")(server);
-var logger = require("morgan");
-var methodOverride = require("method-override");
-var session = require("express-session");
-var bodyParser = require("body-parser");
-var multer = require("multer");
-var errorHandler = require("errorhandler");
 const path = require("path");
 const cookieParser = require("cookie-parser");
-
+const logger = require("morgan");
 const mongoose = require("mongoose");
 const debug = require("debug")("shree-express:server");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const filesRouter = require("./routes/files");
+
+const app = express();
+var io = require("socket.io")(server);
 
 // DB Setup
 mongoose
@@ -36,8 +28,6 @@ mongoose
     }
   });
 
-//Create a file limit size
-app.use(bodyParser.urlencoded({ limit: "50mb" }));
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
@@ -51,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/files", filesRouter);
+var server = require("http").createServer(app);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -68,21 +59,18 @@ app.use(function (err, req, res, next) {
   res.json({ error: res.locals.error, message: res.locals.message });
 });
 
-// from here on is the io based functions
-let sockets = [];
+// starting socket based functions from here
+
 io.on("connection", (socket) => {
   //take new client ip addr and port which they connected from
-  var address = socket.request.connection;
-  var clientAddress = `${address.remoteAddress}:${address.remotePort}`;
+  var clientAddress = `${socket.remoteAddress}:${socket.remotePort}`;
   console.log(`new client connected: ${clientAddress}`);
   sockets.push(socket);
   // List out all the current IPs
   // TODO: remove the following code block
   console.log(`IPs listed as follows: `);
   sockets.forEach((sock) => {
-    var sockAddress = sock.request.connection;
-    var clientSockAddress = `${sockAddress.remoteAddress}:${sockAddress.remotePort}`;
-    console.log(`       ${clientSockAddress}`);
+    console.log(`      ${sock.remoteAddress}:${sock.remotePort}`);
   });
 
   //connect to other open socket ports
@@ -97,11 +85,9 @@ io.on("connection", (socket) => {
     const incoming = data.split("---");
     if (incoming[0] === "write") {
       const sock = _.sample(sockets);
-      var sockAddress = sock.request.connection;
-      var sockClientAddress = `${sockAddress.remoteAddress}:${sockAddress.remotePort}`;
       console.log(sock.remotePort);
       sock.write("sup suckwad you were lucky this time");
-      socket.write(`address---${sockClientAddress}`);
+      socket.write(`address---${sock.remoteAddress}:${sock.remotePort}`);
     } else if (incoming[0] === "read") {
       const incomming = incoming[1].split(":");
       const ip = incomming[0];
