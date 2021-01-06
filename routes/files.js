@@ -1,7 +1,5 @@
 const { json } = require("express");
 const express = require("express");
-var server = require("http").createServer(app);
-var io = require("socket.io")(server);
 const User = require("../models/User");
 const File = require("../models/Files");
 const debug = require("debug")("shree-express:server");
