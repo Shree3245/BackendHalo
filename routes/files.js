@@ -20,27 +20,29 @@ router.post("/add", (req, res, next) => {
       res
         .status(401)
         .json({ message: "You don't exist on my database asshole" });
+    } else{
+      const newFile = new File({
+        id: uuid.v4(),
+        username: req.body.username,
+        data: req.body.data,
+        filename: req.body.filename,
+      });
+    
+      newFile
+        .save()
+        .then((doc) => {
+          debug(`Created a new file ${JSON.stringify(doc, null, 2)}`);
+          res.status(201).json({ message: "File added succesfully", id: doc._id });
+        })
+        .catch((err) => {
+          debug(`Failed to create a new user: ${err}`);
+          res.status(500).json({ message: `Couldn't register new user: ${err}` });
+        });
     }
   });
   // Doc found without errors, compare password
 
-  const newFile = new File({
-    id: uuid.v4(),
-    username: req.body.username,
-    data: req.body.data,
-    filename: req.body.filename,
-  });
-
-  newFile
-    .save()
-    .then((doc) => {
-      debug(`Created a new file ${JSON.stringify(doc, null, 2)}`);
-      res.status(201).json({ message: "File added succesfully", id: doc._id });
-    })
-    .catch((err) => {
-      debug(`Failed to create a new user: ${err}`);
-      res.status(500).json({ message: `Couldn't register new user: ${err}` });
-    });
+ 
 });
 
 router.post("/fileDownload", function (req, res) {
