@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post("/add", (req, res, next) => {
   if (!req.body.username || !req.body.data || !req.body.filename) {
-    res.status(401).json({ message: "No data passed" });
+    res.status(401).json({ message: "No data passeds" });
     next();
   }
 
