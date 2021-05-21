@@ -64,20 +64,21 @@ router.post("/login", (req, res, next) => {
       res
         .status(401)
         .json({ message: "You don't exist on my database asshole" });
-    } else{
+    } else {
       if (doc.password === req.body.password) {
         res.status(201).json({ message: "User successfully logged in" });
-    } else {
-      // console.log(req.body.password);
-      // console.log(doc.password);
-      res
-        .status(401)
-        .json({ message: "You don't exist on my database asshole. move away" });
-    }}
+      } else {
+        // console.log(req.body.password);
+        // console.log(doc.password);
+        res
+          .status(401)
+          .json({
+            message: "You don't exist on my database asshole. move away",
+          });
+      }
+    }
 
     // Doc found without errors, compare password
-
-    
   });
 });
 

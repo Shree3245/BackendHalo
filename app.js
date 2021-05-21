@@ -5,14 +5,75 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-const debug = require("debug")("shree-express:server");
-
+const sockets = require("./models/Sockets");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const filesRouter = require("./routes/files");
 
-const app = express();
-var io = require("socket.io")(server);
+var http = require("http");
+var app = express();
+var port = normalizePort(process.env.PORT || "3001");
+var server = http.createServer(app);
+server.listen(port);
+var io = require("socket.io")(3050);
+
+server.on("error", onError);
+server.on("listening", onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+    console.log(error);
+  }
+
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  console.log("Listening on " + bind);
+}
 
 //Allow for transactions to be up to 50MB
 app.use(express.json({ limit: "50mb" }));
@@ -45,7 +106,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/files", filesRouter);
-var server = require("http").createServer(app);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -67,14 +127,16 @@ app.use(function (err, req, res, next) {
 
 io.on("connection", (socket) => {
   //take new client ip addr and port which they connected from
-  var clientAddress = `${socket.remoteAddress}:${socket.remotePort}`;
+  var address = socket.request.connection;
+  var clientAddress = `${address.remoteAddress}:${address.remotePort}`;
   console.log(`new client connected: ${clientAddress}`);
   sockets.push(socket);
   // List out all the current IPs
   // TODO: remove the following code block
   console.log(`IPs listed as follows: `);
   sockets.forEach((sock) => {
-    console.log(`      ${sock.remoteAddress}:${sock.remotePort}`);
+    var address = sock.request.connection;
+    console.log(`      ${address.remoteAddress}:${address.remotePort}`);
   });
 
   //connect to other open socket ports
@@ -91,7 +153,9 @@ io.on("connection", (socket) => {
       const sock = _.sample(sockets);
       console.log(sock.remotePort);
       sock.write("sup suckwad you were lucky this time");
-      socket.write(`address---${sock.remoteAddress}:${sock.remotePort}`);
+      socket.write(
+        `address---${sock.request.connection.remoteAddress}:${sock.request.connection.remotePort}`
+      );
     } else if (incoming[0] === "read") {
       const incomming = incoming[1].split(":");
       const ip = incomming[0];
@@ -100,10 +164,11 @@ io.on("connection", (socket) => {
       console.log(`asdfasdfasdfasfa ${ip}:${portI}`);
       sockets.forEach((sock) => {
         console.log(
-          `sock port is ${typeof sock.remotePort} looking for port ${portI}`
+          `sock port is ${typeof sock.request.connection
+            .remotePort} looking for port ${portI}`
         );
         if (sock.remotePort === parseInt(portI)) {
-          console.log(sock.remotePort);
+          console.log(sock.request.connection.remotePort);
           sock.write("give me the data fuckwad");
         }
       });
@@ -125,8 +190,9 @@ io.on("connection", (socket) => {
   socket.on("close", (data) => {
     const index = sockets.findIndex((o) => {
       return (
-        o.remoteAddress === socket.remoteAddress &&
-        o.remotePort === socket.remotePort
+        o.request.connection.remoteAddress ===
+          sock.request.connection.remoteAddress &&
+        o.request.connection.remotePort === sock.request.connection.remotePort
       );
     });
     if (index !== -1) sockets.splice(index, 1);
@@ -138,7 +204,9 @@ io.on("connection", (socket) => {
     // Iterate through remaining ports
     console.log("Remaining ports: ");
     sockets.forEach((sock) => {
-      console.log(`       ${sock.remoteAddress}:${sock.remotePort}`);
+      console.log(
+        `       ${sock.request.connection.remoteAddress}:${sock.request.connection.remotePort}`
+      );
     });
   });
 
